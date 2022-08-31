@@ -1,0 +1,93 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Real example of installation of Chef that use the power of CloudFormation init
+Resources:
+  Server:
+    Type: AWS::EC2::Instance
+    Metadata : 
+      AWS::CloudFormation::Init : 
+        configSets: 
+          chefInstall:
+            - "install_cfn"
+            - "install_chefdk"
+            - "install_chef"
+        install_cfn: 
+          files: 
+            /etc/cfn/cfn-hup.conf:
+              content: !Sub |
+                [main]
+                stack= ${AWS::StackId}
+                region= ${AWS::Region}
+              mode: "000400"
+              owner: "root"
+              group: "root"
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf: 
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.LaunchConfig.Metadata.AWS::CloudFormation::Init
+                action=/opt/aws/bin/cfn-init 
+                 --stack ${AWS::StackName}
+                 --resource LaunchConfig 
+                 --configsets chefInstall 
+                 --region ${ AWS::Region}
+              mode : "000400"
+              owner : "root"
+              group : "root"
+          services : 
+            sysvinit :
+              cfn-hup : 
+                enabled : "true"
+                ensureRunning : "true"
+                files : 
+                  - "/etc/cfn/cfn-hup.conf"
+                  - "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+        install_chef:
+          sources : 
+            /var/chef/chef-repo : "http://github.com/opscode/chef-repo/tarball/master"
+          files : 
+            /tmp/install.sh : 
+              source : "https://www.opscode.com/chef/install.sh"
+              mode : "000400"
+              owner : "root"
+              group : "root"
+            /var/chef/chef-repo/.chef/knife.rb : 
+              content: !Sub |
+                cookbook_path [ '/var/chef/chef-repo/cookbooks' ]
+                node_path [ '/var/chef/chef-repo/nodes' ]
+              mode : "000400"
+              owner : "root"
+              group : "root"
+            /var/chef/chef-repo/.chef/client.rb : 
+              content: !Sub |
+                cookbook_path [ '/var/chef/chef-repo/cookbooks' ]
+                node_path [ '/var/chef/chef-repo/nodes' ]
+              mode : "000400"
+              owner : "root"
+              group : "root"
+          commands: 
+            01_make_chef_readable: 
+              command: "chmod +rx /var/chef"
+            02_install_chef: 
+              command: "bash /tmp/install.sh"
+              cwd: "/var/chef"
+            03_create_node_list:
+              command: "chef-client -z -c /var/chef/chef-repo/.chef/client.rb"
+              cwd: "/var/chef/chef-repo"
+              env: 
+                HOME : "/var/chef"
+        install_chefdk: 
+          packages : 
+            rpm : 
+              chefdk : "https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chefdk-0.2.0-2.el6.x86_64.rpm"
+        
+    Properties:
+      ImageId: "ami-0022f774911c1d690"
+      InstanceType: "t2.micro"
+      UserData : 
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash -ex
+            yum update aws-cfn-bootstrap
+            # yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+            /opt/aws/bin/cfn-init -c chefInstall

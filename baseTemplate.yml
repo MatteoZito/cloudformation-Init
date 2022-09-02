@@ -6,7 +6,11 @@ Resources:
     Type: AWS::EC2::Instance
     Metadata : 
       AWS::CloudFormation::Init : 
-        configSets: 
+        configSets:
+# a config set (like chefInstall) is a list of config, you can see a config like a group of things to do but often more than one config, grouped in a 
+# ConfigSet, is  necessary to make things in a specific order.
+# You can have more than one ConfigSet to give the posibility to do things in different orders or omit part of them, but if you want to do things in just
+# one way you need a config called configInit that will be automaticaly chosen when in the user data you will call the cloudFormation init
           chefInstall:
             - "install_cfn"
             - "install_chefdk"
@@ -88,6 +92,7 @@ Resources:
         Fn::Base64:
           !Sub |
             #!/bin/bash -ex
+#you have to update or install cloudformation init if it is not already installed in the AMI used            
             yum update aws-cfn-bootstrap
             # yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
             /opt/aws/bin/cfn-init -c chefInstall

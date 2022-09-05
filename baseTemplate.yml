@@ -144,6 +144,11 @@ Resources:
                 
         install_chefdk: 
           packages : 
+          
+# Packages section is used to install all the packages needed. In first place you have to indicate the packet format. 
+# Supported format are apt, msi, python, rpm, rubygems, yum and Zypper. 
+# Then you write the packet name and at the and the version in brakets
+          
             rpm : 
               chefdk : "https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chefdk-0.2.0-2.el6.x86_64.rpm"
         

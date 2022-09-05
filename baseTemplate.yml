@@ -125,3 +125,6 @@ Resources:
             yum update aws-cfn-bootstrap
             # yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
             /opt/aws/bin/cfn-init -c chefInstall
+
+# This article doesn't cover all the possible settings of CloudFormation Init and its section, it 's just an example of the power but we invite to read
+# the AWS ufficial documentation for more information (https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html) . 

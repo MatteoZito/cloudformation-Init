@@ -1,9 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Real example of installation of Chef that use the power of CloudFormation init
-
-#nell'introduzione spiegare le tre modalità: user data, script python o questo. questo è più semplice breve ed elegante
-
 Resources:
   Server:
     Type: AWS::EC2::Instance

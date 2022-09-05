@@ -7,23 +7,11 @@ Resources:
     Metadata : 
       AWS::CloudFormation::Init : 
         configSets:
-        
-# a config set (like chefInstall) is a list of configuration, you can see a config like a group of things to do.
-# You can have more than one ConfigSet to give the posibility to set the machine in different ways, but if there is only one initialization 
-# you need a config called configInit that will be automaticaly chosen when in the user data you will call the cloudFormation init
-
           chefInstall:
             - "install_cfn"
             - "install_chefdk"
-            - "install_chef"
-       
+            - "install_chef"       
         install_cfn: 
-        
-# a configuration divided into different sections that are executed in the following order: packages, groups, users, sources, files, commands and at the 
-# end services. Each of them is used for different purpouses and you need to group them in more than one configuration to execute them in a different 
-# order. In other words if we don't divide it into configuration and something set in the section "packages" depends on a section that is executed after
-# like "files" it won't work.
-
           files: 
           
 #the "files" section is used for the creation of files and their set up.

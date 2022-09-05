@@ -28,12 +28,28 @@ Resources:
 # like "files" it won't work.
 
           files: 
+          
+#the "files" section is used for the creation of files and their set up.
+#each file start with a row with the full path of the file
+
             /etc/cfn/cfn-hup.conf:
+ 
+# the following is the way to write the content of the file
+ 
               content: !Sub |
                 [main]
                 stack= ${AWS::StackId}
                 region= ${AWS::Region}
+                
+# The mode indicates the privilegies of the file. This is not supported for Windows. It starts with "120" if is a symlink otherwise "000". 
+# The other  digit are in octal, the 4° digit is for the user's privilegies, the 5° for the group and the 6° for the owner. 
+# You can than transate each digit in binary and so you have 3 binary digit: the first is for the reading permission, the second to write and the third 
+# to execute, 1=allow, 0=deny
+                
               mode: "000400"
+              
+# in this example "000" stands for the fact that is not a symlink, 4 becomes 100 so only the user has the permission to read the file
+              
               owner: "root"
               group: "root"
             /etc/cfn/hooks.d/cfn-auto-reloader.conf: 

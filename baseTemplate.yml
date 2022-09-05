@@ -67,20 +67,37 @@ Resources:
               mode : "000400"
               owner : "root"
               group : "root"
+              
           services : 
+          
+# In the services section you define which service enable or not          
+          
             sysvinit :
+            
+# sysVinit and Systemd are Linux systems and services administrator, some servivices are under sysInit and others under Systemd or even other 
+# administrator       
+       
               cfn-hup : 
                 enabled : "true"
                 ensureRunning : "true"
+           
+# with ensureRunnig set to true you are sure that when cfn-init finishes the service is up and running, set it to false if you don't want it is running           
+                
                 files : 
                   - "/etc/cfn/cfn-hup.conf"
                   - "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+                  
+# if one of this file changes the service will be restarted                  
+                  
         install_chef:
           sources : 
             /var/chef/chef-repo : "http://github.com/opscode/chef-repo/tarball/master"
           files : 
             /tmp/install.sh : 
               source : "https://www.opscode.com/chef/install.sh"
+              
+# instead of writing the content of the file in this way you can write the URL to download the file              
+              
               mode : "000400"
               owner : "root"
               group : "root"

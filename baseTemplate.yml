@@ -49,9 +49,11 @@ Resources:
               mode: "000400"
               
 # in this example "000" stands for the fact that is not a symlink, 4 becomes 100 so only the user has the permission to read the file
+# in the following lines it is explained the owner and the group.
               
               owner: "root"
               group: "root"
+              
             /etc/cfn/hooks.d/cfn-auto-reloader.conf: 
               content: !Sub |
                 [cfn-auto-reloader-hook]

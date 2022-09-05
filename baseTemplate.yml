@@ -92,6 +92,11 @@ Resources:
         install_chef:
           sources : 
             /var/chef/chef-repo : "http://github.com/opscode/chef-repo/tarball/master"
+            
+# this is another way to download a file from a link but this time it is a archive file .tar and it will be unpacked. 
+# Tar+gzip, tar+bz2 and zip are also supported format
+
+            
           files : 
             /tmp/install.sh : 
               source : "https://www.opscode.com/chef/install.sh"
@@ -115,17 +120,28 @@ Resources:
               mode : "000400"
               owner : "root"
               group : "root"
-          commands: 
+              
+          commands:
+          
+ # the commands section is to directily execute commands on the bash interface. Each component will be executed in a alphabetic order. This is the 
+ # reason for their numberation in this example.
+          
             01_make_chef_readable: 
               command: "chmod +rx /var/chef"
             02_install_chef: 
               command: "bash /tmp/install.sh"
               cwd: "/var/chef"
+              
+#cwd stands for current work directory, it is the directory from which the command is sent.
+              
             03_create_node_list:
               command: "chef-client -z -c /var/chef/chef-repo/.chef/client.rb"
               cwd: "/var/chef/chef-repo"
               env: 
                 HOME : "/var/chef"
+                
+# the env part let you define enviroment variable in the format ( key : "value" )
+                
         install_chefdk: 
           packages : 
             rpm : 

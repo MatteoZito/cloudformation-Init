@@ -13,29 +13,12 @@ Resources:
             - "install_chef"       
         install_cfn: 
           files: 
-          
-#the "files" section is used for the creation of files and their set up.
-#each file start with a row with the full path of the file
-
             /etc/cfn/cfn-hup.conf:
- 
-# the following is the way to write the content of the file
- 
               content: !Sub |
                 [main]
                 stack= ${AWS::StackId}
-                region= ${AWS::Region}
-                
-# The mode indicates the privilegies of the file. This is not supported for Windows. It starts with "120" if is a symlink otherwise "000". 
-# The other  digit are in octal, the 4° digit is for the user's privilegies, the 5° for the group and the 6° for the owner. 
-# You can than transate each digit in binary and so you have 3 binary digit: the first is for the reading permission, the second to write and the third 
-# to execute, 1=allow, 0=deny
-                
-              mode: "000400"
-              
-# in this example "000" stands for the fact that is not a symlink, 4 becomes 100 so only the user has the permission to read the file
-# in the following lines it is explained the owner and the group.
-              
+                region= ${AWS::Region}            
+              mode: "000400"           
               owner: "root"
               group: "root"
               
@@ -53,41 +36,22 @@ Resources:
               owner : "root"
               group : "root"
               
-          services : 
-          
-# In the services section you define which service enable or not          
-          
-            sysvinit :
-            
-# sysVinit and Systemd are Linux systems and services administrator, some servivices are under sysInit and others under Systemd or even other 
-# administrator       
-       
+          services :         
+            sysvinit :   
               cfn-hup : 
                 enabled : "true"
-                ensureRunning : "true"
-           
-# with ensureRunnig set to true you are sure that when cfn-init finishes the service is up and running, set it to false if you don't want it is running           
-                
+                ensureRunning : "true"             
                 files : 
                   - "/etc/cfn/cfn-hup.conf"
                   - "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
-                  
-# if one of this file changes the service will be restarted                  
                   
         install_chef:
           sources : 
             /var/chef/chef-repo : "http://github.com/opscode/chef-repo/tarball/master"
             
-# this is another way to download a file from a link but this time it is a archive file .tar and it will be unpacked. 
-# Tar+gzip, tar+bz2 and zip are also supported format
-
-            
           files : 
             /tmp/install.sh : 
-              source : "https://www.opscode.com/chef/install.sh"
-              
-# instead of writing the content of the file in this way you can write the URL to download the file              
-              
+              source : "https://www.opscode.com/chef/install.sh"        
               mode : "000400"
               owner : "root"
               group : "root"
@@ -106,34 +70,20 @@ Resources:
               owner : "root"
               group : "root"
               
-          commands:
-          
- # the commands section is to directily execute commands on the bash interface. Each component will be executed in a alphabetic order. This is the 
- # reason for their numberation in this example.
-          
+          commands:         
             01_make_chef_readable: 
               command: "chmod +rx /var/chef"
             02_install_chef: 
               command: "bash /tmp/install.sh"
-              cwd: "/var/chef"
-              
-#cwd stands for current work directory, it is the directory from which the command is sent.
-              
+              cwd: "/var/chef"             
             03_create_node_list:
               command: "chef-client -z -c /var/chef/chef-repo/.chef/client.rb"
               cwd: "/var/chef/chef-repo"
               env: 
                 HOME : "/var/chef"
                 
-# the env part let you define enviroment variable in the format ( key : "value" )
-                
         install_chefdk: 
-          packages : 
-          
-# Packages section is used to install all the packages needed. In first place you have to indicate the packet format. 
-# Supported format are apt, msi, python, rpm, rubygems, yum and Zypper. 
-# Then you write the packet name and at the and the version in quotes but you can also write empty squares to install the latest package
-          
+          packages :         
             rpm : 
               chefdk : "https://opscode-omnibus-packages.s3.amazonaws.com/el/6/x86_64/chefdk-0.2.0-2.el6.x86_64.rpm"
         
@@ -144,11 +94,6 @@ Resources:
         Fn::Base64:
           !Sub |
             #!/bin/bash -ex
-# you have to update or install cloudformation init if it is not already installed in the AMI used            
             yum update aws-cfn-bootstrap
             # yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
             /opt/aws/bin/cfn-init -c chefInstall
-# with this bash command you send the installation of the configSet chefInstall
-
-# This article doesn't cover all the possible settings of CloudFormation Init and its section, it 's just an example of the power but we invite to read
-# the AWS ufficial documentation for more information (https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html) . 
